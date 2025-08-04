@@ -56,7 +56,7 @@ export const searchPhotos = async (query) => {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
-    return data;
+    return data.map(updatePhotoUrl);
   } catch (error) {
     console.error("Failed to search photos:", error);
     throw error;
@@ -75,7 +75,7 @@ export const getPhotoItem = async (id) => {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
-    return data;
+    return updatePhotoUrl(data);
   } catch (error) {
     console.error(`Failed to fetch photo with ID ${id}:`, error);
     throw error;
