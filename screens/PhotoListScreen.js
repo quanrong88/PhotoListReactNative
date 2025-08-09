@@ -7,12 +7,16 @@ import {
   ActivityIndicator,
   Text,
   TouchableOpacity,
+  SafeAreaView,
+  StatusBar,
 } from 'react-native';
 import debounce from 'lodash.debounce';
 import { getPhotos, searchPhotos } from '../api/apiService';
 import PhotoItem from '../components/PhotoItem';
 import { FontAwesome } from '@expo/vector-icons';
 import { Platform } from 'react-native';
+import { colors, spacing, typography, borderRadius } from '../styles/designSystem';
+import commonStyles from '../styles/commonStyles';
 
 const PAGE_SIZE = Platform.OS === 'web' ? 50 : 10;
 
@@ -73,7 +77,7 @@ const PhotoListScreen = ({ navigation }) => {
   };
 
   const renderFooter = () =>
-    loading ? <ActivityIndicator style={styles.loader} /> : null;
+    loading ? <ActivityIndicator style={commonStyles.loader} color={colors.primary[500]} /> : null;
 
   const renderItem = ({ item }) => (
     <TouchableOpacity onPress={() => navigation.navigate('PhotoDetail', { id: item.id })}>
@@ -82,58 +86,69 @@ const PhotoListScreen = ({ navigation }) => {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" backgroundColor={colors.background.card} />
+      <View style={styles.container}>
         <Text style={styles.header}>Photos</Text>
-      <View style={styles.searchBox}>
-        <FontAwesome name="search" size={16} color="#666" style={styles.searchIcon} />
-        <TextInput
-        placeholder="Search photos..."
-        onChangeText={handleSearch}
-        defaultValue={searchTerm}
-        style={styles.searchInput}
-      />
+        <View style={styles.searchBox}>
+          <FontAwesome name="search" size={16} color={colors.neutral[400]} style={styles.searchIcon} />
+          <TextInput
+            placeholder="Search photos..."
+            placeholderTextColor={colors.neutral[400]}
+            onChangeText={handleSearch}
+            defaultValue={searchTerm}
+            style={styles.searchInput}
+          />
         </View>  
-      
-      <FlatList
+        
+        <FlatList
           data={photos}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderItem}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
           ListFooterComponent={renderFooter}
+          showsVerticalScrollIndicator={false}
         />
-    </View>
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background.card,
+  },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 12,
-    paddingTop: 60,
+    paddingHorizontal: spacing[3],
+    paddingTop: spacing[4],
   },
   header: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 12,
-    color: '#000',
+    fontSize: typography.fontSize['3xl'],
+    fontWeight: typography.fontWeight.bold,
+    marginBottom: spacing[3],
+    color: colors.neutral[900],
+    fontFamily: typography.fontFamily.primary,
   },
   searchBox: {
     flexDirection: 'row',
-    backgroundColor: '#f2f2f2',
-    borderRadius: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    backgroundColor: colors.neutral[100],
+    borderRadius: borderRadius.xl,
+    paddingVertical: spacing[2],
+    paddingHorizontal: spacing[3],
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: spacing[4],
   },
   searchIcon: {
-    marginRight: 8,
+    marginRight: spacing[2],
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
+    fontSize: typography.fontSize.base,
+    color: colors.neutral[900],
+    fontFamily: typography.fontFamily.primary,
   },
 });
 

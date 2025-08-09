@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import { colors, spacing, typography, borderRadius } from '../styles/designSystem';
 
 const PhotoItem = ({ title, thumbnailUrl }) => {
   return (
@@ -15,8 +16,7 @@ const PhotoItem = ({ title, thumbnailUrl }) => {
         </View>
 
         <View style={styles.iconContainer}>
-          {/* <FontAwesome name="star" size={20} color="black" style={styles.icon} /> */}
-          <FontAwesome name="chevron-right" size={16} color="gray" />
+          <FontAwesome name="chevron-right" size={16} color={colors.neutral[400]} />
         </View>
       </View>
 
@@ -27,38 +27,37 @@ const PhotoItem = ({ title, thumbnailUrl }) => {
 
 const styles = StyleSheet.create({
   wrapper: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: spacing[2],
+    paddingHorizontal: spacing[3],
+    borderBottomWidth: 1,
+    borderBottomColor: colors.neutral[200],
   },
   container: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: spacing[3],
   },
   thumbnail: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#ccc',
+    backgroundColor: colors.neutral[200],
   },
   textContainer: {
     flex: 1,
-    marginHorizontal: 12,
   },
   title: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#000',
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.medium,
+    color: colors.neutral[900],
+    lineHeight: typography.lineHeight.base,
+    fontFamily: typography.fontFamily.primary,
   },
   iconContainer: {
     alignItems: 'flex-end',
   },
-  icon: {
-    marginBottom: 4,
-  },
   separator: {
-    height: 1,
-    backgroundColor: '#ccc',
-    marginTop: 8,
+    height: 0,
   },
 });
 

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, ActivityIndicator, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Image, ActivityIndicator, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { getPhotoItem } from '../api/apiService';
+import { colors, spacing, typography, borderRadius, shadows } from '../styles/designSystem';
+import { FontAwesome } from '@expo/vector-icons';
 
 const PhotoDetailScreen = ({ route }) => {
   const { id } = route.params;
@@ -23,68 +25,188 @@ const PhotoDetailScreen = ({ route }) => {
   }, [id]);
 
   if (loading) {
-    return <ActivityIndicator style={styles.loading} />;
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary[500]} />
+      </View>
+    );
   }
 
   if (!photo) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.error}>Photo not found</Text>
+      <View style={styles.errorContainer}>
+        <FontAwesome name="exclamation-triangle" size={64} color={colors.error[500]} />
+        <Text style={styles.errorText}>Photo not found</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Image
-        source={{ uri: photo.url }}
-        style={styles.image}
-        resizeMode="contain"
-      />
+    <View style={styles.container}>
+      <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+        <View style={styles.photoContainer}>
+          <Image
+            source={{ uri: photo.url }}
+            style={styles.image}
+            resizeMode="contain"
+          />
+          <View style={styles.photoContent}>
+            <Text style={styles.title}>{photo.title}</Text>
+            <View style={styles.metaContainer}>
+              <View style={styles.metaItem}>
+                <Text style={styles.metaLabel}>Photo ID</Text>
+                <Text style={styles.metaValue}>#{photo.id}</Text>
+              </View>
+              <View style={styles.metaItem}>
+                <Text style={styles.metaLabel}>Album</Text>
+                <Text style={styles.metaValue}>{photo.albumId}</Text>
+              </View>
+              <View style={styles.metaItem}>
+                <Text style={styles.metaLabel}>Views</Text>
+                <Text style={styles.metaValue}>1.2k</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
       
-      <View style={styles.textWrapper}>
-        <Text style={styles.title}>{photo.title}</Text>
+      <View style={styles.actionButtons}>
+        <TouchableOpacity style={styles.actionButtonSecondary}>
+          <FontAwesome name="star" size={20} color={colors.neutral[700]} />
+          <Text style={styles.actionButtonSecondaryText}>Favorite</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionButtonPrimary}>
+          <FontAwesome name="share" size={20} color={colors.background.card} />
+          <Text style={styles.actionButtonPrimaryText}>Share</Text>
+        </TouchableOpacity>
       </View>
-
-      {/* Optional: You can add more details here */}
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.background.card,
+  },
+  scrollContainer: {
+    flex: 1,
+    padding: spacing[4],
+  },
+  photoContainer: {
+    backgroundColor: colors.background.card,
+    borderRadius: borderRadius.xl,
+    overflow: 'hidden',
+    ...shadows.md,
+    marginBottom: spacing[6],
   },
   image: {
     width: '100%',
-    aspectRatio: 1.5, // 🖼️ Maintain aspect ratio
-    borderRadius: 10,
-    backgroundColor: '#ffffff',
-    marginBottom: 24,
+    aspectRatio: 1.5,
+    backgroundColor: colors.neutral[50],
+    borderTopLeftRadius: borderRadius.xl,
+    borderTopRightRadius: borderRadius.xl,
+  },
+  photoContent: {
+    padding: spacing[6],
   },
   title: {
-    fontSize: 18,
-    fontWeight: '500',
+    fontSize: typography.fontSize.lg,
+    fontWeight: typography.fontWeight.medium,
+    color: colors.neutral[900],
+    lineHeight: typography.lineHeight.lg,
     textAlign: 'center',
+    marginBottom: spacing[4],
+    fontFamily: typography.fontFamily.primary,
   },
-  loading: {
+  metaContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: spacing[4],
+    borderTopWidth: 1,
+    borderTopColor: colors.neutral[200],
+    marginTop: spacing[4],
+  },
+  metaItem: {
+    alignItems: 'center',
+    gap: spacing[1],
+  },
+  metaLabel: {
+    fontSize: typography.fontSize.xs,
+    color: colors.neutral[500],
+    fontWeight: typography.fontWeight.medium,
+    textTransform: 'uppercase',
+    fontFamily: typography.fontFamily.primary,
+  },
+  metaValue: {
+    fontSize: typography.fontSize.sm,
+    color: colors.neutral[900],
+    fontWeight: typography.fontWeight.semibold,
+    fontFamily: typography.fontFamily.primary,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    gap: spacing[3],
+    paddingHorizontal: spacing[4],
+    paddingBottom: spacing[8],
+  },
+  actionButtonPrimary: {
     flex: 1,
+    backgroundColor: colors.primary[500],
+    paddingVertical: spacing[3],
+    paddingHorizontal: spacing[6],
+    borderRadius: borderRadius.xl,
+    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'center',
+    gap: spacing[2],
   },
-  center: {
+  actionButtonSecondary: {
+    flex: 1,
+    backgroundColor: colors.neutral[100],
+    borderWidth: 1,
+    borderColor: colors.neutral[300],
+    paddingVertical: spacing[3],
+    paddingHorizontal: spacing[6],
+    borderRadius: borderRadius.xl,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing[2],
+  },
+  actionButtonPrimaryText: {
+    color: colors.background.card,
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
+    fontFamily: typography.fontFamily.primary,
+  },
+  actionButtonSecondaryText: {
+    color: colors.neutral[700],
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
+    fontFamily: typography.fontFamily.primary,
+  },
+  loadingContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: colors.background.card,
   },
-  textWrapper: {
-    width: '100%',
-    alignItems: 'center', // Ensures child (Text) is centered horizontally
-   },
-  error: {
-    fontSize: 16,
-    color: 'red',
+  errorContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.background.card,
+    padding: spacing[6],
+  },
+  errorText: {
+    fontSize: typography.fontSize.lg,
+    fontWeight: typography.fontWeight.medium,
+    color: colors.error[500],
+    textAlign: 'center',
+    marginTop: spacing[4],
+    fontFamily: typography.fontFamily.primary,
   },
 });
 
