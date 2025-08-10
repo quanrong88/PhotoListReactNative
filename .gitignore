@@ -38,3 +38,4 @@ yarn-error.*
 .claude
 CLAUDE.md
 .claudeignore
+.mcp.json
