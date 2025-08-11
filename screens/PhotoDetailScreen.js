@@ -1,30 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, Image, ActivityIndicator, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { getPhotoItem } from '../api/apiService';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchPhotoById } from '../store/slices/photosSlice';
 import { colors, spacing, typography, borderRadius, shadows } from '../styles/designSystem';
 import { FontAwesome } from '@expo/vector-icons';
 
 const PhotoDetailScreen = ({ route }) => {
   const { id } = route.params;
-  const [photo, setPhoto] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const { currentPhoto: photo, status } = useSelector((state) => state.photos);
 
   useEffect(() => {
-    const loadPhoto = async () => {
-      try {
-        const result = await getPhotoItem(id);
-        setPhoto(result);
-      } catch (error) {
-        console.error('Failed to load photo detail:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    dispatch(fetchPhotoById(id));
+  }, [dispatch, id]);
 
-    loadPhoto();
-  }, [id]);
-
-  if (loading) {
+  if (status === 'loading') {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.primary[500]} />
@@ -32,7 +22,7 @@ const PhotoDetailScreen = ({ route }) => {
     );
   }
 
-  if (!photo) {
+  if (status === 'failed' || !photo) {
     return (
       <View style={styles.errorContainer}>
         <FontAwesome name="exclamation-triangle" size={64} color={colors.error[500]} />

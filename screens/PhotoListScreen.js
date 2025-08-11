@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import {
   FlatList,
   TextInput,
@@ -11,73 +11,42 @@ import {
   StatusBar,
 } from 'react-native';
 import debounce from 'lodash.debounce';
-import { getPhotos, searchPhotos } from '../api/apiService';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchPhotos, searchPhotosAsync } from '../store/slices/photosSlice';
 import PhotoItem from '../components/PhotoItem';
 import { FontAwesome } from '@expo/vector-icons';
-import { Platform } from 'react-native';
 import { colors, spacing, typography, borderRadius } from '../styles/designSystem';
 import commonStyles from '../styles/commonStyles';
 
-const PAGE_SIZE = Platform.OS === 'web' ? 50 : 10;
-
 const PhotoListScreen = ({ navigation }) => {
-  const [photos, setPhotos] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const { items: photos, status, page, hasMore } = useSelector((state) => state.photos);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-
   useEffect(() => {
-    loadPhotos();
-  }, []);
-
-  const loadPhotos = async (reset = false) => {
-    console.log('Loading photos... reset:', reset);
-    setLoading(true);
-    try {
-      const start = reset ? 0 : page * PAGE_SIZE;
-
-      const result = await getPhotos(start, PAGE_SIZE);
-      setPhotos(prev => (reset ? result : [...prev, ...result]));
-      setPage(prev => (reset ? 1 : prev + 1));
-      setHasMore(result.length === PAGE_SIZE);
-    } catch (err) {
-      console.error('Error loading photos:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Initial load
+    dispatch(fetchPhotos({ page: 0, reset: true }));
+  }, [dispatch]);
 
   const handleSearch = useCallback(
-    debounce(async (text) => {
-      setSearchTerm(text);
+    debounce((text) => {
       if (text.trim() === '') {
-        loadPhotos(true);
-        return;
-      }
-
-      setLoading(true);
-      try {
-        const results = await searchPhotos(text);
-        setPhotos(results);
-      } catch (err) {
-        console.error('Search failed:', err);
-      } finally {
-        setLoading(false);
+        dispatch(fetchPhotos({ page: 0, reset: true }));
+      } else {
+        dispatch(searchPhotosAsync(text));
       }
     }, 400),
-    []
+    [dispatch]
   );
 
   const handleLoadMore = () => {
-    if (hasMore && !loading) {
-      loadPhotos();
+    if (hasMore && status !== 'loading') {
+      dispatch(fetchPhotos({ page }));
     }
   };
 
   const renderFooter = () =>
-    loading ? <ActivityIndicator style={commonStyles.loader} color={colors.primary[500]} /> : null;
+    status === 'loading' ? <ActivityIndicator style={commonStyles.loader} color={colors.primary[500]} /> : null;
 
   const renderItem = ({ item }) => (
     <TouchableOpacity onPress={() => navigation.navigate('PhotoDetail', { id: item.id })}>
@@ -95,8 +64,11 @@ const PhotoListScreen = ({ navigation }) => {
           <TextInput
             placeholder="Search photos..."
             placeholderTextColor={colors.neutral[400]}
-            onChangeText={handleSearch}
-            defaultValue={searchTerm}
+            onChangeText={(text) => {
+              setSearchTerm(text);
+              handleSearch(text);
+            }}
+            value={searchTerm}
             style={styles.searchInput}
           />
         </View>  
