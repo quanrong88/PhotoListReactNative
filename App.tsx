@@ -5,8 +5,9 @@ import { Provider } from 'react-redux';
 import { store } from './store/store';
 import PhotoListScreen from './screens/PhotoListScreen';
 import PhotoDetailScreen from './screens/PhotoDetailScreen';
+import { RootStackParamList } from './navigation/types';
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (

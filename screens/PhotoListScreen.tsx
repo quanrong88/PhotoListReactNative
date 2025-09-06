@@ -11,16 +11,21 @@ import {
   StatusBar,
 } from 'react-native';
 import debounce from 'lodash.debounce';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchPhotos, searchPhotosAsync } from '../store/slices/photosSlice';
 import PhotoItem from '../components/PhotoItem';
 import { FontAwesome } from '@expo/vector-icons';
 import { colors, spacing, typography, borderRadius } from '../styles/designSystem';
 import commonStyles from '../styles/commonStyles';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation/types';
+import { Photo } from '../api/apiService';
 
-const PhotoListScreen = ({ navigation }) => {
-  const dispatch = useDispatch();
-  const { items: photos, status, page, hasMore } = useSelector((state) => state.photos);
+type Props = NativeStackScreenProps<RootStackParamList, 'PhotoList'>;
+
+const PhotoListScreen = ({ navigation }: Props) => {
+  const dispatch = useAppDispatch();
+  const { items: photos, status, page, hasMore } = useAppSelector((state) => state.photos);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -29,7 +34,7 @@ const PhotoListScreen = ({ navigation }) => {
   }, [dispatch]);
 
   const handleSearch = useCallback(
-    debounce((text) => {
+    debounce((text: string) => {
       if (text.trim() === '') {
         dispatch(fetchPhotos({ page: 0, reset: true }));
       } else {
@@ -48,7 +53,7 @@ const PhotoListScreen = ({ navigation }) => {
   const renderFooter = () =>
     status === 'loading' ? <ActivityIndicator style={commonStyles.loader} color={colors.primary[500]} /> : null;
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item }: { item: Photo }) => (
     <TouchableOpacity onPress={() => navigation.navigate('PhotoDetail', { id: item.id })}>
       <PhotoItem title={item.title} thumbnailUrl={item.thumbnailUrl} />
     </TouchableOpacity>
@@ -99,7 +104,7 @@ const styles = StyleSheet.create({
   },
   header: {
     fontSize: typography.fontSize['3xl'],
-    fontWeight: typography.fontWeight.bold,
+    fontWeight: typography.fontWeight.bold as 'bold',
     marginBottom: spacing[3],
     color: colors.neutral[900],
     fontFamily: typography.fontFamily.primary,

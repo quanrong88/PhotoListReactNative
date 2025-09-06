@@ -1,4 +1,4 @@
-// utils/utils.test.js
+// utils/utils.test.ts
 import { addNumbers } from '../utils/utils';
 
 describe('addNumbers', () => {

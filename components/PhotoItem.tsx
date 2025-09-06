@@ -3,11 +3,16 @@ import { View, Text, Image, StyleSheet } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { colors, spacing, typography, borderRadius } from '../styles/designSystem';
 
-const PhotoItem = ({ title, thumbnailUrl }) => {
+interface PhotoItemProps {
+  title: string;
+  thumbnailUrl: string;
+}
+
+const PhotoItem: React.FC<PhotoItemProps> = ({ title, thumbnailUrl }) => {
   return (
     <View style={styles.wrapper}>
       <View style={styles.container}>
-        <Image source={{ uri: thumbnailUrl }} style={styles.thumbnail} />
+        <Image source={{ uri: thumbnailUrl }} style={styles.thumbnail as import('react-native').ImageStyle} />
 
         <View style={styles.textContainer}>
           <Text style={styles.title} numberOfLines={2}>

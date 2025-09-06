@@ -1,27 +1,28 @@
-// tests/apiService.test.js
+// tests/apiService.test.ts
 
-import { getPhotos, searchPhotos, getPhotoItem } from '../api/apiService';
+import { getPhotos, searchPhotos, getPhotoItem, Photo } from '../api/apiService';
 
 // Mock global fetch
 global.fetch = jest.fn();
 
+const mockPhoto: Photo = {
+  albumId: 1,
+  id: 1,
+  title: 'test photo',
+  url: 'https://via.placeholder.com/600/92c952',
+  thumbnailUrl: 'https://via.placeholder.com/150/92c952',
+};
+
 describe('getPhotos', () => {
   beforeEach(() => {
-    fetch.mockClear();
+    (fetch as jest.Mock).mockClear();
   });
 
   it('fetches photos and updates URLs', async () => {
     // Arrange: mock successful API response
-    fetch.mockResolvedValueOnce({
+    (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
-      json: async () => [
-        {
-          id: 1,
-          title: 'test photo',
-          url: 'https://via.placeholder.com/600/92c952',
-          thumbnailUrl: 'https://via.placeholder.com/150/92c952',
-        },
-      ],
+      json: async () => [mockPhoto],
     });
 
     // Act
@@ -36,7 +37,7 @@ describe('getPhotos', () => {
 
   it('throws error on failed response (status not ok)', async () => {
     // Arrange: mock failed API response
-    fetch.mockResolvedValueOnce({
+    (fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
       status: 500,
     });
@@ -51,33 +52,37 @@ describe('getPhotos', () => {
     // Restore console.error
     console.error = originalConsoleError;
   });
-
-  
 });
 
 describe('searchPhotos', () => {
   beforeEach(() => {
-    fetch.mockClear();
+    (fetch as jest.Mock).mockClear();
   });
 
   it('fetches photos using query string', async () => {
-    const mockData = [{ id: 1, title: 'sunset' }];
+    const mockData: Photo[] = [{ ...mockPhoto, id: 2, title: 'a sunset photo' }];
 
-    fetch.mockResolvedValueOnce({
+    (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockData,
     });
 
     const result = await searchPhotos('sunset');
 
+    const expectedData = mockData.map(p => ({
+        ...p,
+        url: p.url.replace('https://via.placeholder.com', 'https://dummyimage.com'),
+        thumbnailUrl: p.thumbnailUrl.replace('https://via.placeholder.com', 'https://dummyimage.com')
+    }));
+
     expect(fetch).toHaveBeenCalledWith(
       'https://jsonplaceholder.typicode.com/photos?q=sunset'
     );
-    expect(result).toEqual(mockData);
+    expect(result).toEqual(expectedData);
   });
 
   it('throws error when response is not ok', async () => {
-    fetch.mockResolvedValueOnce({
+    (fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
       status: 404,
     });
@@ -93,30 +98,29 @@ describe('searchPhotos', () => {
 
 describe('getPhotoItem', () => {
   beforeEach(() => {
-    fetch.mockClear();
+    (fetch as jest.Mock).mockClear();
   });
 
   it('fetches single photo by ID', async () => {
-    const mockPhoto = {
-      id: 1,
-      title: 'single photo',
-      url: 'https://dummyimage.com/600/92c952',
-      thumbnailUrl: 'https://dummyimage.com/150/92c952',
-    };
-
-    fetch.mockResolvedValueOnce({
+    (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockPhoto,
     });
 
     const result = await getPhotoItem(1);
 
+    const expectedPhoto = {
+        ...mockPhoto,
+        url: 'https://dummyimage.com/600/92c952',
+        thumbnailUrl: 'https://dummyimage.com/150/92c952',
+    }
+
     expect(fetch).toHaveBeenCalledWith('https://jsonplaceholder.typicode.com/photos/1');
-    expect(result).toEqual(mockPhoto);
+    expect(result).toEqual(expectedPhoto);
   });
 
   it('throws error if photo not found (e.g. 404)', async () => {
-    fetch.mockResolvedValueOnce({
+    (fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
       status: 404,
     });

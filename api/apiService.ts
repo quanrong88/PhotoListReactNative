@@ -1,15 +1,21 @@
-// apiService.js
+// apiService.ts
 // This service provides methods for interacting with the JSONPlaceholder photo API.
 // It uses the native `fetch` API for making network requests.
 
 const BASE_URL = 'https://jsonplaceholder.typicode.com';
 
+export interface Photo {
+  albumId: number;
+  id: number;
+  title: string;
+  url: string;
+  thumbnailUrl: string;
+}
+
 /**
  * Replaces the placeholder image URL in a photo object.
- * @param {Object} photo The photo object from the API.
- * @returns {Object} The photo object with the updated URL.
  */
-const updatePhotoUrl = (photo) => {
+const updatePhotoUrl = (photo: Photo): Photo => {
   // Check if the URL needs to be updated.
   if (photo.url && photo.url.startsWith('https://via.placeholder.com')) {
     return {
@@ -25,11 +31,8 @@ const updatePhotoUrl = (photo) => {
 
 /**
  * Fetches a list of photos with pagination.
- * @param {number} start The starting index for the photos.
- * @param {number} limit The number of photos to fetch.
- * @returns {Promise<Array>} A promise that resolves with an array of photo objects.
  */
-export const getPhotos = async (start = 0, limit = 10) => {
+export const getPhotos = async (start: number = 0, limit: number = 10): Promise<Photo[]> => {
   try {
     const response = await fetch(`${BASE_URL}/photos?_start=${start}&_limit=${limit}`);
     if (!response.ok) {
@@ -46,10 +49,8 @@ export const getPhotos = async (start = 0, limit = 10) => {
 
 /**
  * Searches for photos based on a query string.
- * @param {string} query The search query string.
- * @returns {Promise<Array>} A promise that resolves with an array of matching photo objects.
  */
-export const searchPhotos = async (query) => {
+export const searchPhotos = async (query: string): Promise<Photo[]> => {
   try {
     const response = await fetch(`${BASE_URL}/photos?q=${query}`);
     if (!response.ok) {
@@ -65,10 +66,8 @@ export const searchPhotos = async (query) => {
 
 /**
  * Fetches a single photo item by its ID.
- * @param {number} id The ID of the photo to fetch.
- * @returns {Promise<Object>} A promise that resolves with a single photo object.
  */
-export const getPhotoItem = async (id) => {
+export const getPhotoItem = async (id: number): Promise<Photo> => {
   try {
     const response = await fetch(`${BASE_URL}/photos/${id}`);
     if (!response.ok) {

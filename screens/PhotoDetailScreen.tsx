@@ -1,14 +1,18 @@
 import React, { useEffect } from 'react';
 import { View, Text, Image, ActivityIndicator, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchPhotoById } from '../store/slices/photosSlice';
 import { colors, spacing, typography, borderRadius, shadows } from '../styles/designSystem';
 import { FontAwesome } from '@expo/vector-icons';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation/types';
 
-const PhotoDetailScreen = ({ route }) => {
+type Props = NativeStackScreenProps<RootStackParamList, 'PhotoDetail'>;
+
+const PhotoDetailScreen = ({ route }: Props) => {
   const { id } = route.params;
-  const dispatch = useDispatch();
-  const { currentPhoto: photo, status } = useSelector((state) => state.photos);
+  const dispatch = useAppDispatch();
+  const { currentPhoto: photo, status } = useAppSelector((state) => state.photos);
 
   useEffect(() => {
     dispatch(fetchPhotoById(id));
@@ -37,7 +41,7 @@ const PhotoDetailScreen = ({ route }) => {
         <View style={styles.photoContainer}>
           <Image
             source={{ uri: photo.url }}
-            style={styles.image}
+            style={styles.image as import('react-native').ImageStyle}
             resizeMode="contain"
           />
           <View style={styles.photoContent}>
@@ -102,7 +106,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: typography.fontWeight.medium as '500',
     color: colors.neutral[900],
     lineHeight: typography.lineHeight.lg,
     textAlign: 'center',
@@ -125,14 +129,14 @@ const styles = StyleSheet.create({
   metaLabel: {
     fontSize: typography.fontSize.xs,
     color: colors.neutral[500],
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: typography.fontWeight.medium as '500',
     textTransform: 'uppercase',
     fontFamily: typography.fontFamily.primary,
   },
   metaValue: {
     fontSize: typography.fontSize.sm,
     color: colors.neutral[900],
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: typography.fontWeight.semibold as '600',
     fontFamily: typography.fontFamily.primary,
   },
   actionButtons: {
@@ -168,13 +172,13 @@ const styles = StyleSheet.create({
   actionButtonPrimaryText: {
     color: colors.background.card,
     fontSize: typography.fontSize.base,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: typography.fontWeight.semibold as '600',
     fontFamily: typography.fontFamily.primary,
   },
   actionButtonSecondaryText: {
     color: colors.neutral[700],
     fontSize: typography.fontSize.base,
-    fontWeight: typography.fontWeight.semibold,
+    fontWeight: typography.fontWeight.semibold as '600',
     fontFamily: typography.fontFamily.primary,
   },
   loadingContainer: {
@@ -192,7 +196,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.medium,
+    fontWeight: typography.fontWeight.medium as '500',
     color: colors.error[500],
     textAlign: 'center',
     marginTop: spacing[4],
